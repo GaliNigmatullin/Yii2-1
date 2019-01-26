@@ -11,16 +11,24 @@ namespace app\controllers;
 
 use app\components\TestService;
 use app\models\Product;
+use yii\helpers\VarDumper;
 use yii\web\Controller;
 
 class TestController extends Controller
 {
     public function actionIndex()
     {
-        $content = \Yii::$app->test->run();
+
+        $model = new Product(
+            ['id' => 1, 'name' => '     <b>  aadf   </b>', 'price' => 1001]
+        );
+
+        $model -> validate();
+        return VarDumper::dumpAsString($model->getErrors(), 5, true);
+       /* $content = \Yii::$app->test->run();
         return $this->render('index', [
             'content' => $content
-        ]);
+        ]);*/
 
 
       /*  $product = new Product();
