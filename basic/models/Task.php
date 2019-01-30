@@ -5,30 +5,28 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "user".
+ * This is the model class for table "task".
  *
  * @property int $id
- * @property string $username
- * @property string $password_hash
- * @property string $auth_key
+ * @property string $title
+ * @property string $description
  * @property int $creator_id
  * @property int $updater_id
  * @property int $created_at
  * @property int $updated_at
  *
- * @property Task[] $createdTasks
- * @property Task[] $updatedTasks
+ * @property User $creator
+ * @property User $updater
  * @property TaskUser[] $taskUsers
  */
-class User extends \yii\db\ActiveRecord
+class Task extends \yii\db\ActiveRecord
 {
-    const RELATION_CREATED_TASKS = 'createdTasks';
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'user';
+        return 'task';
     }
 
     /**
@@ -37,9 +35,12 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['username', 'password_hash', 'creator_id', 'created_at'], 'required'],
+            [['title', 'description', 'creator_id', 'created_at'], 'required'],
+            [['description'], 'string'],
             [['creator_id', 'updater_id', 'created_at', 'updated_at'], 'integer'],
-            [['username', 'password_hash', 'auth_key'], 'string', 'max' => 255],
+            [['title'], 'string', 'max' => 255],
+            [['creator_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['creator_id' => 'id']],
+            [['updater_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['updater_id' => 'id']],
         ];
     }
 
@@ -50,9 +51,8 @@ class User extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'username' => 'Username',
-            'password_hash' => 'Password Hash',
-            'auth_key' => 'Auth Key',
+            'title' => 'Title',
+            'description' => 'Description',
             'creator_id' => 'Creator ID',
             'updater_id' => 'Updater ID',
             'created_at' => 'Created At',
@@ -63,17 +63,17 @@ class User extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCreatedTasks()
+    public function getCreator()
     {
-        return $this->hasMany(Task::className(), ['creator_id' => 'id']);
+        return $this->hasOne(User::className(), ['id' => 'creator_id']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUpdatedTasks()
+    public function getUpdater()
     {
-        return $this->hasMany(Task::className(), ['updater_id' => 'id']);
+        return $this->hasOne(User::className(), ['id' => 'updater_id']);
     }
 
     /**
@@ -81,7 +81,7 @@ class User extends \yii\db\ActiveRecord
      */
     public function getTaskUsers()
     {
-        return $this->hasMany(TaskUser::className(), ['user_id' => 'id']);
+        return $this->hasMany(TaskUser::className(), ['task_id' => 'id']);
     }
 
     /**
