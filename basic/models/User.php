@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 
 /**
@@ -25,14 +26,6 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
     const RELATION_CREATED_TASKS = 'createdTasks';
 
-  /*  //Правильно реализован сценарий??
-    const SCENARIO_CREATE = 'create';
-    public function scenarios()
-    {
-        return[self::SCENARIO_DEFAULT => ['name'],
-            self::SCENARIO_CREATE => ['name', 'password',],
-        ];
-    }*/
 
     public $password;
 
@@ -116,20 +109,26 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function behaviors()
     {
         return[
-            TimestampBehavior::class,
+            ['class' => TimestampBehavior::class],
+            ['class' => BlameableBehavior::class,
+                'createdByAttribute' => 'creator_id',
+                'updatedByAttribute' => 'updater_id',
+                ]
         ];
     }
     public function beforeSave($insert)
     {
-        if (parent::beforeSave($insert)) {
+        if (!parent::beforeSave($insert)) {
                 return false;
             }
         if ($this->isNewRecord) {
             $this->auth_key = \Yii::$app->security->generateRandomString();
+
         }
 
         if ($this->password) {
             $this->password_hash = Yii::$app->getSecurity()->generatePasswordHash($this->password);
+
         }
         return true;
     }
