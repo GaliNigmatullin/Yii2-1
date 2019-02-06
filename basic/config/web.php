@@ -54,10 +54,7 @@ $config = [
                 '<controller:\w+>/<action:\w+>/' => '<controller>/<action>',
             ],
         ],
-        'test' => [
-            'class' => \app\components\TestService::class,
-            'myProp' => 'Дефолтное значение',
-        ]
+
 
     ],
     'params' => $params,

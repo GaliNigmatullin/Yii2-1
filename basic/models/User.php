@@ -118,6 +118,10 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     }
     public function beforeSave($insert)
     {
+        if ($this->password) {
+            $this->password_hash = Yii::$app->getSecurity()->generatePasswordHash($this->password);
+
+        }
         if (!parent::beforeSave($insert)) {
                 return false;
             }
@@ -126,10 +130,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 
         }
 
-        if ($this->password) {
-            $this->password_hash = Yii::$app->getSecurity()->generatePasswordHash($this->password);
 
-        }
         return true;
     }
 

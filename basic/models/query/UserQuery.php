@@ -9,10 +9,9 @@ namespace app\models\query;
  */
 class UserQuery extends \yii\db\ActiveQuery
 {
-    /*public function active()
-    {
-        return $this->andWhere('[[status]]=1');
-    }*/
+    public function byCreator($id){
+        return $this->andWhere(['creator_id' => $id]);
+    }
 
     /**
      * {@inheritdoc}
