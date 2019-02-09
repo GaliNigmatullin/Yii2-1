@@ -54,6 +54,31 @@ class TaskController extends Controller
             'dataProvider' => $dataProvider,
         ]);
     }
+    public function actionShared()
+    {
+        $query = Task::find()->byCreator(Yii::$app->user->id)
+        ->InnerjoinWith(Task::RELATION_TASK_USERS);
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        return $this->render('shared', [
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+    public function actionAccessed()
+    {
+        $query = Task::find()
+            ->InnerjoinWith(Task::RELATION_TASK_USERS)
+            ->where(['user_id' => Yii::$app->user->id]);
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        return $this->render('accessed', [
+            'dataProvider' => $dataProvider,
+        ]);
+    }
 
     /**
      * Displays a single Task model.
@@ -78,7 +103,8 @@ class TaskController extends Controller
         $model = new Task();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            Yii::$app->session->setFlash('success', 'Вы успешно создали задачу!');
+            return $this->redirect(['task/my', 'id' => $model->id]);
         }
 
         return $this->render('create', [
@@ -98,7 +124,8 @@ class TaskController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            Yii::$app->session->setFlash('success', 'Вы успешно изменили задачу!');
+            return $this->redirect(['task/my', 'id' => $model->id]);
         }
 
         return $this->render('update', [
@@ -116,8 +143,8 @@ class TaskController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
+        Yii::$app->session->setFlash('success', 'Вы успешно удалили задачу!');
+        return $this->redirect(['task/my']);
     }
 
     /**
